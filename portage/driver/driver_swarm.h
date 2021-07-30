@@ -335,8 +335,21 @@ public:
     float tot_seconds = 0.0, tot_seconds_dist = 0.0,
       tot_seconds_srch = 0.0, tot_seconds_xsect = 0.0,
       tot_seconds_interp = 0.0;
+      
     //struct timeval begin_timeval, end_timeval, diff_timeval;
     auto tic = timer::now();
+    
+    // JD: populate source and target position arrays
+    Wonton::vector<Wonton::Point<dim>> source_pos;
+    Wonton::vector<Wonton::Point<dim>> target_pos;
+
+    Kokkos::parallel_for(HostRange(0, nb_source), [&](int i) {
+      source_pos[i] = source_swarm_.get_particle_coordinates[i]
+    });
+    Kokkos::parallel_for(HostRange(0, nb_target), [&](int i) {
+      target_pos[i] = target_swarm_.get_particle_coordinates[i]
+    }); 
+    //Wonton::transform?
 
     //DISTRIBUTE
     // This step would change the input source swarm and its state
@@ -392,6 +405,7 @@ public:
       // create accumulator to evaluate weight function on source cells
       Wonton::vector<Weight::Kernel> step_kern(nb_source, Weight::STEP);
       Accumulator accumulator(source_swarm_, target_swarm_,
+                              source_pos, target_pos,
                               estimator_type_, weight_center_,
                               step_kern, geom_types_, part_smoothing_, basis_type_,
                               operator_spec_, operator_domains_, operator_data_);
