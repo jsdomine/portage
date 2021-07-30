@@ -69,7 +69,7 @@ class Accumulate {
    * the length is the size of the source swarm.
    */
   Accumulate(SourceSwarm const& source, TargetSwarm const& target,
-  					 Wonton::vector<Wonton::Point<dim>> const& source_pos, Wonton::vector<Wonton::Point<dim>> const& target_pos,
+             Wonton::vector<Wonton::Point<dim>> const& source_pos, Wonton::vector<Wonton::Point<dim>> const& target_pos,
              EstimateType estimate, WeightCenter center,
              Wonton::vector<Weight::Kernel> const& kernels,
              Wonton::vector<Weight::Geometry> const& geometries,
@@ -79,8 +79,8 @@ class Accumulate {
              Wonton::vector<std::vector<Wonton::Point<dim>>> const& operator_data = {})
     : source_(source),
       target_(target),
-			source_pos_(source_pos),
-			target_pos_(target_pos),
+      source_pos_(source_pos),
+      target_pos_(target_pos),
       estimate_(estimate),
       center_(center),
       kernels_(kernels),
