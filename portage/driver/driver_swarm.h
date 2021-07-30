@@ -378,6 +378,7 @@ public:
     // Get an instance of the desired search algorithm type which is expected
     // to be a functor with an operator() of the right form
     Searcher search(source_swarm_, target_swarm_,
+                    source_pos, target_pos,
                     source_extents_, target_extents_, weight_center_);
 
     Wonton::transform(target_swarm_.begin(Wonton::PARTICLE, Wonton::PARALLEL_OWNED),
