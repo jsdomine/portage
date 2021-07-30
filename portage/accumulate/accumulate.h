@@ -117,6 +117,8 @@ class Accumulate {
    */
   double weight(const size_t particleA, const size_t particleB) {
     double result = 0.0;
+    //Wonton::Point<dim> &x = target_pos_[particleA];
+    //template gather/scatter
     if (center_ == Gather) {
       result = Weight::eval<dim>(geometries_[particleA],
                                  kernels_[particleA],
@@ -159,7 +161,7 @@ class Accumulate {
       case OperatorRegression:
       case LocalRegression: {
         size_t nbasis = basis::function_size<dim>(basis_);
-        Wonton::Point<dim> x = target_pos_[particleA];
+        Wonton::Point<dim> const& x = target_pos_[particleA];
 
 	      // If too few particles, set estimate to zero for this target
 	      bool zilchit = false;
@@ -177,7 +179,7 @@ class Accumulate {
         if (not zilchit) {
           for (auto const& particleB : source_particles) {
             weight_val[iB] = weight(particleA, particleB); // save weights for later
-            Wonton::Point<dim> y = source_pos_[particleB];
+            Wonton::Point<dim> const& y = source_pos_[particleB];
             auto& basis = basis_values[iB];
             basis = basis::shift<dim>(basis_, x, y);
             for (size_t i=0; i<nbasis; i++) {
