@@ -73,12 +73,16 @@ public:
    */
   SearchPointsBins(SourceSwarm const& source_swarm,
                    TargetSwarm const& target_swarm,
+                   Wonton::vector<Wonton::Point<dim>> const& source_pos,
+                   Wonton::vector<Wonton::Point<dim>> const& target_pos,
                    Wonton::vector<Wonton::Point<dim>> const& /* unused */,
                    Wonton::vector<Wonton::Point<dim>> const& target_search_radius,
                    WeightCenter const center = Gather,
                    double radius_scale = 2.)
     : source_swarm_(source_swarm),
       target_swarm_(target_swarm),
+      source_pos_(source_pos),
+      target_pos_(target_pos),
       search_radius_(target_search_radius),
       radius_scale_(radius_scale) {
 
@@ -112,7 +116,7 @@ public:
     }
 
     for (int t = 0; t < num_target_points; ++t) {
-      auto const& p = target_swarm.get_particle_coordinates(t);
+      auto const& p = target_pos_[t];
       auto const h = radius_scale * Wonton::Point<dim>(target_search_radius[t]);
       for (int d = 0; d < dim; ++d) {
         p_min[d] = std::min(p_min[d], p[d] - h[d]);
@@ -156,7 +160,7 @@ public:
     bucket_.resize(num_bins);
 
     for (int s = 0; s < num_source_points; ++s) {
-      auto const& p = source_swarm.get_particle_coordinates(s);
+      auto const& p = source_pos_[s];
       bool inside = true;
       for (int d = 0; d < dim; ++d) {
         if (p[d] < p_min[d] or p[d] > p_max[d]) {
@@ -186,7 +190,7 @@ public:
    */
   std::vector<int> operator() (int id) const {
 
-    auto const p = target_swarm_.get_particle_coordinates(id);
+    auto const p = target_pos_[id];
     auto const h = radius_scale_ * Wonton::Point<dim>(search_radius_[id]);
 
     /* --------------------------------------------------------------
@@ -255,7 +259,7 @@ public:
     for (int c : cells) {
       for (int s : bucket_[c]) {
         bool contained = true;
-        auto const& q = source_swarm_.get_particle_coordinates(s);
+        auto const& q = source_pos_[s];
         for (int d = 0; d < dim; ++d) {
           if (std::abs(q[d] - p[d]) > h[d]) {
             contained = false;
