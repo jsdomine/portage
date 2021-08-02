@@ -343,12 +343,12 @@ public:
     Wonton::vector<Wonton::Point<dim>> target_pos;
     source_pos.resize(nb_source);
     target_pos.resize(nb_target);
-    Kokkos::parallel_for(HostRange(0, nb_source), [&](int i) {
-      source_pos[i] = source_swarm_.get_particle_coordinates[i]
-    });
-    Kokkos::parallel_for(HostRange(0, nb_target), [&](int i) {
-      target_pos[i] = target_swarm_.get_particle_coordinates[i]
-    });
+    for (int i = 0; i < nb_source; i++) {
+      source_pos[i] = source_swarm_.get_particle_coordinates(i);
+    }
+    for (int i = 0; i < nb_target; i++) {
+      target_pos[i] = target_swarm_.get_particle_coordinates(i);
+    }
 
     //DISTRIBUTE
     // This step would change the input source swarm and its state
