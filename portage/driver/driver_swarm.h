@@ -335,21 +335,20 @@ public:
     float tot_seconds = 0.0, tot_seconds_dist = 0.0,
       tot_seconds_srch = 0.0, tot_seconds_xsect = 0.0,
       tot_seconds_interp = 0.0;
-      
     //struct timeval begin_timeval, end_timeval, diff_timeval;
     auto tic = timer::now();
     
     // JD: populate source and target position arrays
     Wonton::vector<Wonton::Point<dim>> source_pos;
     Wonton::vector<Wonton::Point<dim>> target_pos;
-
+    source_pos.resize(nb_source);
+    target_pos.resize(nb_target);
     Kokkos::parallel_for(HostRange(0, nb_source), [&](int i) {
       source_pos[i] = source_swarm_.get_particle_coordinates[i]
     });
     Kokkos::parallel_for(HostRange(0, nb_target), [&](int i) {
       target_pos[i] = target_swarm_.get_particle_coordinates[i]
-    }); 
-    //Wonton::transform?
+    });
 
     //DISTRIBUTE
     // This step would change the input source swarm and its state
