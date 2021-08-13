@@ -69,7 +69,6 @@ class Accumulate {
    * the length is the size of the source swarm.
    */
   Accumulate(SourceSwarm const& source, TargetSwarm const& target,
-             Wonton::vector<Wonton::Point<dim>> const& source_pos, Wonton::vector<Wonton::Point<dim>> const& target_pos,
              EstimateType estimate, WeightCenter center,
              Wonton::vector<Weight::Kernel> const& kernels,
              Wonton::vector<Weight::Geometry> const& geometries,
@@ -79,8 +78,6 @@ class Accumulate {
              Wonton::vector<std::vector<Wonton::Point<dim>>> const& operator_data = {})
     : source_(source),
       target_(target),
-      source_pos_(source_pos),
-      target_pos_(target_pos),
       estimate_(estimate),
       center_(center),
       kernels_(kernels),
@@ -117,19 +114,17 @@ class Accumulate {
    */
   double weight(const size_t particleA, const size_t particleB) {
     double result = 0.0;
-    //Wonton::Point<dim> &x = target_pos_[particleA];
-    //template gather/scatter
+    Wonton::Point<dim> x = target_.get_particle_coordinates(particleA);
+    Wonton::Point<dim> y = source_.get_particle_coordinates(particleB);
     if (center_ == Gather) {
       result = Weight::eval<dim>(geometries_[particleA],
                                  kernels_[particleA],
-                                 target_pos_[particleA], //x
-																 source_pos_[particleB], //y
+                                 x,y,
                                  smoothing_[particleA]);
     } else if (center_ == Scatter) {
       result = Weight::eval<dim>(geometries_[particleB],
                                  kernels_[particleB],
-                                 source_pos_[particleB], //y
-																 target_pos_[particleA], //x; faceted weights are asymmetric
+                                 y,x, // faceted weights are asymmetric
                                  smoothing_[particleB]);
     }
     return result;
@@ -161,7 +156,7 @@ class Accumulate {
       case OperatorRegression:
       case LocalRegression: {
         size_t nbasis = basis::function_size<dim>(basis_);
-        Wonton::Point<dim> const& x = target_pos_[particleA];
+        Wonton::Point<dim> x = target_.get_particle_coordinates(particleA);
 
 	      // If too few particles, set estimate to zero for this target
 	      bool zilchit = false;
@@ -179,7 +174,7 @@ class Accumulate {
         if (not zilchit) {
           for (auto const& particleB : source_particles) {
             weight_val[iB] = weight(particleA, particleB); // save weights for later
-            Wonton::Point<dim> const& y = source_pos_[particleB];
+            Wonton::Point<dim> y = source_.get_particle_coordinates(particleB);
             auto& basis = basis_values[iB];
             basis = basis::shift<dim>(basis_, x, y);
             for (size_t i=0; i<nbasis; i++) {
